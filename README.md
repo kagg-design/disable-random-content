@@ -34,4 +34,6 @@ composer phpcs
 
 `.github/workflows/ci.yml` installs WordPress 7.2 Beta 4 and runs all checks against a disposable MySQL database. `.distignore` keeps development files out of the WordPress.org package; the package contains `plugin.php`, `src/Main.php`, `readme.txt`, and `LICENSE`.
 
+The WordPress.org icon and banners are in `.wordpress-org/`. The SVG icon has 128 px and 256 px PNG fallbacks. The editable banner source is `design/wordpress-org-banner.svg`; both banner PNGs are generated from it. The deploy workflow places `.wordpress-org/` in the WordPress.org SVN `assets` directory.
+
 Publishing a non-prerelease GitHub release triggers `.github/workflows/deploy.yml`. Use an unprefixed release tag matching the `Version` header in `plugin.php` and `Stable tag` in `readme.txt` (for example, `1.0.0`). WordPress.org deployment requires the `disable-random-content` slug to be approved and `SVN_USERNAME` and `SVN_PASSWORD` to be configured as GitHub repository secrets. No release is created by the CI workflow.

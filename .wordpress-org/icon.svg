@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Disable Random Content</title>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10b6d2"/>
+      <stop offset="0.52" stop-color="#0876b9"/>
+      <stop offset="1" stop-color="#183a87"/>
+    </linearGradient>
+    <linearGradient id="white" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f7f5"/>
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="240" fill="url(#blue)"/>
+  <circle cx="256" cy="256" r="233" fill="none" stroke="#edec10" stroke-width="14"/>
+  <g transform="rotate(-10 256 256)">
+    <rect x="126" y="126" width="260" height="260" rx="54" fill="url(#white)" stroke="#c5e7e9" stroke-width="8"/>
+    <g fill="#154f94">
+      <circle cx="196" cy="196" r="19"/>
+      <circle cx="316" cy="196" r="19"/>
+      <circle cx="256" cy="256" r="19"/>
+      <circle cx="196" cy="316" r="19"/>
+      <circle cx="316" cy="316" r="19"/>
+    </g>
+  </g>
+  <circle cx="256" cy="256" r="171" fill="none" stroke="#e92760" stroke-width="30"/>
+  <path d="M135 377 377 135" fill="none" stroke="#e92760" stroke-width="34" stroke-linecap="round"/>
+</svg>
