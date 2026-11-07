@@ -38,14 +38,15 @@ function test_test_clear_network_random_rewrite_rules( int $network_id ): void {
         return;
     }
 
-    $offset = 0;
+    $batch_size = 100;
+    $offset     = 0;
 
     do {
         $site_ids = get_sites(
             array(
                 'network_id' => $network_id,
                 'fields'     => 'ids',
-                'number'     => 100,
+                'number'     => $batch_size,
                 'offset'     => $offset,
                 'orderby'    => 'id',
                 'order'      => 'ASC',
@@ -56,6 +57,8 @@ function test_test_clear_network_random_rewrite_rules( int $network_id ): void {
             switch_to_blog( (int) $site_id );
 
             try {
+                // switch_to_blog() does not rebuild the global WP_Rewrite object.
+                // Let this site regenerate its own rules on its next request.
                 update_option( 'rewrite_rules', '' );
             } finally {
                 restore_current_blog();
@@ -63,7 +66,7 @@ function test_test_clear_network_random_rewrite_rules( int $network_id ): void {
         }
 
         $offset += count( $site_ids );
-    } while ( 100 === count( $site_ids ) );
+    } while ( $batch_size === count( $site_ids ) );
 }
 
 function test_test_network_random_plugin_status_changed( string $option, $new_value, $old_value, int $network_id ): void {
