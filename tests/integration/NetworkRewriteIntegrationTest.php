@@ -42,6 +42,56 @@ class NetworkRewriteIntegrationTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Each site regenerates deleted rules using its own permalink structure.
+	 */
+	public function test_deleted_rules_regenerate_in_each_site_context(): void {
+		if ( ! is_multisite() ) {
+			self::markTestSkipped( 'Requires a WordPress multisite test run.' );
+		}
+
+		$site_ids = [
+			self::factory()->blog->create(),
+			self::factory()->blog->create(),
+		];
+		$plugin   = plugin_basename( dirname( __DIR__, 2 ) . '/plugin.php' );
+
+		update_site_option( 'active_sitewide_plugins', [] );
+
+		foreach ( $site_ids as $site_id ) {
+			switch_to_blog( $site_id );
+
+			try {
+				update_option( 'permalink_structure', '/site-' . $site_id . '/%postname%/' );
+				update_option( 'rewrite_rules', [ 'sentinel' => 'index.php' ] );
+			} finally {
+				restore_current_blog();
+			}
+		}
+
+		update_site_option( 'active_sitewide_plugins', [ $plugin => time() ] );
+
+		foreach ( $site_ids as $site_id ) {
+			switch_to_blog( $site_id );
+
+			try {
+				self::assertFalse( get_option( 'rewrite_rules' ) );
+
+				$rewrite = new \WP_Rewrite();
+				$rules   = $rewrite->wp_rewrite_rules();
+
+				self::assertIsArray( $rules );
+				self::assertNotEmpty( $rules );
+				self::assertSame( $rules, get_option( 'rewrite_rules' ) );
+				self::assertNotEmpty( preg_grep( '#site-' . $site_id . '/#', array_keys( $rules ) ) );
+			} finally {
+				restore_current_blog();
+			}
+		}
+
+		update_site_option( 'active_sitewide_plugins', [] );
+	}
+
+	/**
 	 * The site query continues past the first batch of IDs.
 	 */
 	public function test_network_change_clears_sites_after_first_batch(): void {
@@ -58,7 +108,7 @@ class NetworkRewriteIntegrationTest extends WP_UnitTestCase {
 		update_site_option( 'active_sitewide_plugins', [ $plugin => time() ] );
 
 		switch_to_blog( $last_id );
-		self::assertSame( '', get_option( 'rewrite_rules' ) );
+		self::assertFalse( get_option( 'rewrite_rules' ) );
 		restore_current_blog();
 		update_site_option( 'active_sitewide_plugins', [] );
 	}
@@ -103,7 +153,7 @@ class NetworkRewriteIntegrationTest extends WP_UnitTestCase {
 	private function assert_site_rules_cleared( array $site_ids ): void {
 		foreach ( $site_ids as $site_id ) {
 			switch_to_blog( $site_id );
-			self::assertSame( '', get_option( 'rewrite_rules' ) );
+			self::assertFalse( get_option( 'rewrite_rules' ) );
 			restore_current_blog();
 		}
 	}

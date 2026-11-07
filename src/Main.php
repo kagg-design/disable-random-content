@@ -138,9 +138,10 @@ final class Main {
 				switch_to_blog( (int) $site_id );
 
 				try {
-					// switch_to_blog() does not rebuild the global WP_Rewrite object.
-					// This site's next request will regenerate rules with its own settings.
-					update_option( 'rewrite_rules', '' );
+					// Core also deletes rewrite_rules for a switched site in update_home_siteurl().
+					// A flush here could save rules from the original site's WP_Rewrite object.
+					// The next request to this site regenerates rules with its own settings.
+					delete_option( 'rewrite_rules' );
 				} finally {
 					restore_current_blog();
 				}
