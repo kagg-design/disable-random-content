@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<ruleset name="Disable Random Content">
+	<description>WordPress coding standards for the plugin and its tests.</description>
+
+	<file>plugin.php</file>
+	<file>src</file>
+	<file>tests</file>
+	<exclude-pattern>*/tests/integration/_config/params.local.php</exclude-pattern>
+	<arg name="extensions" value="php"/>
+	<arg name="basepath" value="./"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<rule ref="PHPCompatibility"/>
+	<rule ref="PHPCompatibilityWP"/>
+	<rule ref="WordPress">
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax.Found"/>
+		<exclude name="Universal.Operators.DisallowShortTernary.Found"/>
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+	</rule>
+</ruleset>

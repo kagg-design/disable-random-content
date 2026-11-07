@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: disable_random_content_tests
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_HOST: 127.0.0.1
+      DB_NAME: disable_random_content_tests
+      DB_USER: root
+      DB_PASSWORD: root
+      WP_ROOT_PATH: ${{ github.workspace }}/wordpress
+
+    steps:
+      - name: Check out plugin
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mysqli, mbstring, zip
+          tools: composer:v2
+
+      - name: Install test tools
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Download WordPress 7.2 Beta 4
+        run: |
+          curl -fsSLo wordpress.zip https://wordpress.org/wordpress-7.2-beta4.zip
+          echo '4e94811cf6b95ec082e024b00f58ddcdd9f3c706  wordpress.zip' | sha1sum -c -
+          unzip -q wordpress.zip
+
+      - name: Run PHPCS and WordPress tests
+        run: composer test

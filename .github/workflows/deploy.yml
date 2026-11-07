@@ -1,0 +1,42 @@
+name: Deploy to WordPress.org
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    if: ${{ ! github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out release
+        uses: actions/checkout@v7
+
+      - name: Check release version
+        shell: bash
+        run: |
+          plugin_version="$(sed -nE 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*([^[:space:]]+).*/\1/p' plugin.php)"
+          stable_tag="$(sed -nE 's/^Stable tag:[[:space:]]*([^[:space:]]+).*/\1/p' readme.txt)"
+          if [[ -z "$plugin_version" || "$plugin_version" != "$stable_tag" || "$plugin_version" != "$GITHUB_REF_NAME" ]]; then
+            echo "Release tag, plugin version, and readme stable tag must match."
+            exit 1
+          fi
+
+      - name: Deploy plugin
+        id: deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        with:
+          generate-zip: true
+        env:
+          SLUG: disable-random-content
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+
+      - name: Attach installable ZIP to release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: ${{ steps.deploy.outputs.zip-path }}

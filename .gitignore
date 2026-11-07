@@ -1,1 +1,4 @@
 .idea/
+vendor/
+tests/integration/_config/params.local.php
+.phpunit.result.cache

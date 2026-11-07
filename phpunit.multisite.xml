@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<phpunit bootstrap="tests/integration/bootstrap.php" colors="true">
+	<php>
+		<env name="WP_MULTISITE" value="1" force="true"/>
+	</php>
+	<testsuites>
+		<testsuite name="disable-random-content-multisite">
+			<directory suffix="Test.php">tests/integration</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
