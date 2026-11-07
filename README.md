@@ -4,6 +4,8 @@ This WordPress plugin disables the random content redirects introduced in WordPr
 
 The main plugin file is `plugin.php`. The hook implementation is in `src/Main.php`; WordPress loads it directly. Composer installs development tools only. On a multisite network, a change in network activation clears each site's saved rewrite rules. WordPress regenerates them in that site's own context on its next request.
 
+The disabling filter runs at priority 0, so another plugin can override it at a later priority. If the final filter value changes, refresh rewrite rules once so the saved `/random/` route matches that value.
+
 ## Integration tests
 
 The tests use the WordPress PHPUnit test suite, following the setup used by Cyr-To-Lat. They require a **dedicated disposable database**: the WordPress test bootstrap installs tables and clears test data.

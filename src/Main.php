@@ -34,7 +34,7 @@ final class Main {
 	 * Register the plugin's WordPress hooks.
 	 */
 	public function init(): void {
-		add_filter( 'wp_enable_random_content_redirect', [ $this, 'disable_random_content_redirect' ] );
+		add_filter( 'wp_enable_random_content_redirect', [ $this, 'disable_random_content_redirect' ], 0 );
 		add_action( 'update_site_option_active_sitewide_plugins', [ $this, 'network_status_updated' ], 10, 4 );
 		add_action( 'add_site_option_active_sitewide_plugins', [ $this, 'network_status_added' ], 10, 3 );
 
@@ -68,10 +68,10 @@ final class Main {
 	 * @param bool $network_wide Whether the plugin is deactivated for the network.
 	 */
 	public function deactivate( bool $network_wide ): void {
-		remove_filter( 'wp_enable_random_content_redirect', [ $this, 'disable_random_content_redirect' ] );
+		remove_filter( 'wp_enable_random_content_redirect', [ $this, 'disable_random_content_redirect' ], 0 );
 
 		if ( ! $network_wide ) {
-			flush_rewrite_rules();
+			flush_rewrite_rules( false );
 		}
 	}
 

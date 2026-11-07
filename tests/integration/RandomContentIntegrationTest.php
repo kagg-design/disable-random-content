@@ -23,6 +23,30 @@ class RandomContentIntegrationTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A later callback can explicitly restore the core feature.
+	 */
+	public function test_later_filter_can_enable_random_content(): void {
+		global $wp_rewrite;
+
+		$wp_rewrite->set_permalink_structure( '/%postname%/' );
+
+		$enable = static function (): bool {
+			return true;
+		};
+
+		add_filter( 'wp_enable_random_content_redirect', $enable, 5 );
+
+		try {
+			self::assertTrue( wp_is_random_content_redirect_enabled() );
+			self::assertNotEmpty( $wp_rewrite->random_rewrite_rules() );
+		} finally {
+			remove_filter( 'wp_enable_random_content_redirect', $enable, 5 );
+		}
+
+		self::assertFalse( wp_is_random_content_redirect_enabled() );
+	}
+
+	/**
 	 * The disabled feature adds no pretty permalink routes.
 	 */
 	public function test_random_rewrite_rules_are_absent(): void {
