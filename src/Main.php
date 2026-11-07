@@ -35,10 +35,11 @@ final class Main {
 	 */
 	public function init(): void {
 		add_filter( 'wp_enable_random_content_redirect', [ $this, 'disable_random_content_redirect' ] );
-		register_activation_hook( $this->plugin_file, [ $this, 'activate' ] );
-		register_deactivation_hook( $this->plugin_file, [ $this, 'deactivate' ] );
 		add_action( 'update_site_option_active_sitewide_plugins', [ $this, 'network_status_updated' ], 10, 4 );
 		add_action( 'add_site_option_active_sitewide_plugins', [ $this, 'network_status_added' ], 10, 3 );
+
+		register_activation_hook( $this->plugin_file, [ $this, 'activate' ] );
+		register_deactivation_hook( $this->plugin_file, [ $this, 'deactivate' ] );
 	}
 
 	/**
