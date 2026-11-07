@@ -3,6 +3,20 @@
   "description": "Disable WordPress random content redirects",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "KAGG Design",
+      "email": "info@kagg.eu",
+      "homepage": "https://kagg.eu/en/"
+    },
+    {
+      "name": "Ernest Behinov",
+      "homepage": "https://profiles.wordpress.org/ernest35/"
+    }
+  ],
+  "support": {
+    "issues": "https://wordpress.org/support/plugin/disable-random-content"
+  },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
     "phpcompatibility/php-compatibility": "^9.3.5",

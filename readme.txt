@@ -1,8 +1,8 @@
 === Disable Random Content ===
-Contributors: kaggdesign
+Contributors: kaggdesign, ernest35
 Tags: random content, redirects, permalinks
 Requires at least: 7.2
-Tested up to: 7.2
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later

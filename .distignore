@@ -1,15 +1,21 @@
-# Development and repository files excluded from the WordPress.org package.
+# Development and repository directories and files excluded from the WordPress.org package.
+
+# Directories
 /.git
 /.github
 /.idea
-/vendor
+/.wordpress-org
 /tests
+/vendor
+
+# Files
+/.DS_Store
 /.distignore
 /.gitignore
+/.phpunit.result.cache
 /README.md
 /composer.json
 /composer.lock
 /phpcs.xml
 /phpunit.integration.xml
 /phpunit.multisite.xml
-/.phpunit.result.cache

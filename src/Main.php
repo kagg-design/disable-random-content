@@ -81,6 +81,8 @@ final class Main {
 	 * @param mixed  $new_value  New network-wide active plugin list.
 	 * @param mixed  $old_value  Previous network-wide active plugin list.
 	 * @param int    $network_id Network ID.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function network_status_updated( string $option, $new_value, $old_value, int $network_id ): void {
 		$plugin     = plugin_basename( $this->plugin_file );
@@ -98,6 +100,8 @@ final class Main {
 	 * @param string $option     Network option name.
 	 * @param mixed  $value      Network-wide active plugin list.
 	 * @param int    $network_id Network ID.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function network_status_added( string $option, $value, int $network_id ): void {
 		if ( is_array( $value ) && isset( $value[ plugin_basename( $this->plugin_file ) ] ) ) {
@@ -111,7 +115,7 @@ final class Main {
 	 * @param int $network_id Network ID.
 	 */
 	private function clear_network_rewrite_rules( int $network_id ): void {
-		if ( ! is_multisite() || $network_id < 1 ) {
+		if ( $network_id < 1 || ! is_multisite() ) {
 			return;
 		}
 
