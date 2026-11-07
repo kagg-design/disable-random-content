@@ -2,16 +2,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1544" height="500" viewBox="0 0 1544 500" role="img" aria-labelledby="title">
   <title id="title">Disable Random Content WordPress.org banner</title>
   <defs>
-    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#b6e800"/>
-      <stop offset="0.55" stop-color="#66de00"/>
-      <stop offset="1" stop-color="#a5ef00"/>
-    </linearGradient>
-    <linearGradient id="yellow" x1="0" y1="0" x2="1" y2="0.7">
-      <stop offset="0" stop-color="#fff21b"/>
-      <stop offset="0.55" stop-color="#f4ea0b"/>
-      <stop offset="1" stop-color="#e3f212"/>
-    </linearGradient>
     <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#10b6d2"/>
       <stop offset="0.52" stop-color="#0876b9"/>
@@ -22,8 +12,6 @@
       <stop offset="1" stop-color="#e8f7f5"/>
     </linearGradient>
   </defs>
-  <rect width="1544" height="500" fill="url(#green)"/>
-  <path d="M0 8C210 171 450 224 692 158 970 82 1188-14 1544 14V500c-272-77-483-65-717-24C471 539 193 436 0 274Z" fill="url(#yellow)"/>
   <g transform="translate(36 35) scale(.38)">
     <circle cx="256" cy="256" r="240" fill="url(#blue)"/>
     <circle cx="256" cy="256" r="233" fill="none" stroke="#edec10" stroke-width="14"/>
