@@ -33,7 +33,9 @@ The plugin removes the special rewrite rules. Those URLs then follow the site's 
 
 == Changelog ==
 
-= 1.0.0 =
+= 1.1.0 =
+* Keep random content redirects disabled after deactivation and reactivation in the same request.
 
+= 1.0.0 =
 * Disable random content redirects and their rewrite rules.
 * Refresh site and network rewrite rules when activation status changes.
