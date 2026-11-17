@@ -2,9 +2,9 @@
 Contributors: kaggdesign, ernest35
 Tags: random content, redirects, permalinks
 Requires at least: 7.2
-Tested up to: 7.1
+Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -69,6 +69,9 @@ Not yet. If you need to exclude specific categories or post types, please send u
 The plugin makes no external requests and adds no tracking or separate data store. It does update WordPress's saved permalink rules when its activation status changes.
 
 == Changelog ==
+
+= 1.2.0 =
+* Tested with WordPress 7.2.
 
 = 1.1.0 =
 * Keep random content redirects disabled after deactivation and reactivation in the same request.
