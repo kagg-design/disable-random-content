@@ -12,6 +12,11 @@ jobs:
   tests:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.6']
+
     services:
       mysql:
         image: mysql:8.0
@@ -40,12 +45,14 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.5'
+          php-version: ${{ matrix.php }}
           extensions: mysqli, mbstring, zip
           tools: composer:v2
 
-      - name: Install test tools
-        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Install and check test dependencies
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          composer check-platform-reqs
 
       - name: Download WordPress 7.2 Beta 4
         run: |
