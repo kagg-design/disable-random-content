@@ -15,7 +15,7 @@ With empty settings, a later callback on `wp_enable_random_content_redirect` can
 The tests use the WordPress PHPUnit test suite, following the setup used by Cyr-To-Lat. They require a **dedicated disposable database**: the WordPress test bootstrap installs tables and clears test data.
 
 1. Run `composer install`.
-2. Copy `tests/integration/_config/params.example.php` to `params.local.php` and set the WordPress root and dedicated database credentials. The local file is ignored by Git. Alternatively, point `DRC_TEST_PARAMS` to a private PHP config file.
+2. Copy `tests/php/integration/_config/params.example.php` to `params.local.php` and set the WordPress root and dedicated database credentials. The local file is ignored by Git. Alternatively, point `DRC_TEST_PARAMS` to a private PHP config file.
 3. Run `composer test`. This checks PHPCS and runs the WordPress tests in single-site and Multisite modes.
 
 The individual commands are:

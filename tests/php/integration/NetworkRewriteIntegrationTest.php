@@ -29,7 +29,7 @@ class NetworkRewriteIntegrationTest extends WP_UnitTestCase {
 			self::factory()->blog->create(),
 			self::factory()->blog->create(),
 		];
-		$plugin   = plugin_basename( dirname( __DIR__, 2 ) . '/plugin.php' );
+		$plugin   = plugin_basename( dirname( __DIR__, 3 ) . '/plugin.php' );
 
 		update_site_option( 'active_sitewide_plugins', [] );
 		$this->set_site_rules( $site_ids );
@@ -53,7 +53,7 @@ class NetworkRewriteIntegrationTest extends WP_UnitTestCase {
 			self::factory()->blog->create(),
 			self::factory()->blog->create(),
 		];
-		$plugin   = plugin_basename( dirname( __DIR__, 2 ) . '/plugin.php' );
+		$plugin   = plugin_basename( dirname( __DIR__, 3 ) . '/plugin.php' );
 
 		update_site_option( 'active_sitewide_plugins', [] );
 
@@ -101,7 +101,7 @@ class NetworkRewriteIntegrationTest extends WP_UnitTestCase {
 
 		$site_ids = self::factory()->blog->create_many( 101 );
 		$last_id  = end( $site_ids );
-		$plugin   = plugin_basename( dirname( __DIR__, 2 ) . '/plugin.php' );
+		$plugin   = plugin_basename( dirname( __DIR__, 3 ) . '/plugin.php' );
 
 		update_site_option( 'active_sitewide_plugins', [] );
 		$this->set_site_rules( [ $last_id ] );
@@ -122,7 +122,7 @@ class NetworkRewriteIntegrationTest extends WP_UnitTestCase {
 		}
 
 		$site_id = self::factory()->blog->create();
-		$plugin  = plugin_basename( dirname( __DIR__, 2 ) . '/plugin.php' );
+		$plugin  = plugin_basename( dirname( __DIR__, 3 ) . '/plugin.php' );
 
 		delete_site_option( 'active_sitewide_plugins' );
 		$this->set_site_rules( [ $site_id ] );

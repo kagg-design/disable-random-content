@@ -5,7 +5,7 @@
  * @package DisableRandomContent
  */
 
-$project_root    = dirname( __DIR__, 2 );
+$project_root    = dirname( __DIR__, 3 );
 $vendor_autoload = $project_root . '/vendor/autoload.php';
 
 if ( ! file_exists( $vendor_autoload ) ) {
@@ -49,7 +49,7 @@ require_once $tests_dir . '/includes/functions.php';
  * Load the plugin with WordPress's must-use plugins.
  */
 function disable_random_content_load_for_tests(): void {
-	require dirname( __DIR__, 2 ) . '/plugin.php';
+	require dirname( __DIR__, 3 ) . '/plugin.php';
 }
 
 tests_add_filter( 'muplugins_loaded', 'disable_random_content_load_for_tests' );

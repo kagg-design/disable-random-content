@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<phpunit bootstrap="tests/integration/bootstrap.php" colors="true">
+<phpunit bootstrap="tests/php/integration/bootstrap.php" colors="true">
 	<testsuites>
 		<testsuite name="disable-random-content-integration">
-			<directory suffix="Test.php">tests/integration</directory>
+			<directory suffix="Test.php">tests/php/integration</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>

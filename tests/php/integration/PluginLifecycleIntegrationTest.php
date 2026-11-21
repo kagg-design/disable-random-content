@@ -22,7 +22,7 @@ class PluginLifecycleIntegrationTest extends WP_UnitTestCase {
 	public function test_same_request_reactivation_removes_random_routes(): void {
 		global $wp_rewrite;
 
-		$plugin = plugin_basename( dirname( __DIR__, 2 ) . '/plugin.php' );
+		$plugin = plugin_basename( dirname( __DIR__, 3 ) . '/plugin.php' );
 		$wp_rewrite->set_permalink_structure( '/%postname%/' );
 
 		for ( $cycle = 0; $cycle < 2; ++$cycle ) {
@@ -54,7 +54,7 @@ class PluginLifecycleIntegrationTest extends WP_UnitTestCase {
 			self::markTestSkipped( 'Requires a WordPress multisite test run.' );
 		}
 
-		$plugin   = plugin_basename( dirname( __DIR__, 2 ) . '/plugin.php' );
+		$plugin   = plugin_basename( dirname( __DIR__, 3 ) . '/plugin.php' );
 		$sentinel = [ 'sentinel/?$' => 'index.php?test=1' ];
 		update_option( 'rewrite_rules', $sentinel );
 
@@ -72,7 +72,7 @@ class PluginLifecycleIntegrationTest extends WP_UnitTestCase {
 	public function test_reactivation_preserves_later_filter_override(): void {
 		global $wp_rewrite;
 
-		$plugin = plugin_basename( dirname( __DIR__, 2 ) . '/plugin.php' );
+		$plugin = plugin_basename( dirname( __DIR__, 3 ) . '/plugin.php' );
 		$wp_rewrite->set_permalink_structure( '/%postname%/' );
 
 		do_action( 'deactivate_' . $plugin, false );
