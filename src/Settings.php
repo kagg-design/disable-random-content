@@ -31,14 +31,16 @@ final class Settings {
 		add_action(
 			'admin_enqueue_scripts',
 			static function ( string $screen ): void {
-				if ( 'settings_page_' . self::PAGE === $screen ) {
-					wp_enqueue_style(
-						self::PAGE,
-						DISABLE_RANDOM_CONTENT_URL . '/assets/css/settings.css',
-						[],
-						DISABLE_RANDOM_CONTENT_VERSION
-					);
+				if ( 'settings_page_' . self::PAGE !== $screen ) {
+					return;
 				}
+
+				wp_enqueue_style(
+					self::PAGE,
+					DISABLE_RANDOM_CONTENT_URL . '/assets/css/settings.css',
+					[],
+					DISABLE_RANDOM_CONTENT_VERSION
+				);
 			}
 		);
 	}
