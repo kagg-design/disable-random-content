@@ -2,6 +2,8 @@
 
 This WordPress plugin disables the random content redirects introduced in WordPress 7.2. Activate the plugin to turn them off. All settings are optional.
 
+Composer autoloads the classes in `src/`. Run `composer install` before activating the plugin from a source checkout.
+
 In **Settings → Disable Random Content**, select individual categories, tags, other public taxonomy terms, or eligible post type archives to allow. An allowed archive works both with a random URL such as `/random/category/blog/` and with `?random` on its regular archive URL. The site-wide `/random/` stays disabled. Selections belong to each site in Multisite.
 
 The plugin clears a site's saved rewrite rules after its settings change. On a multisite network, an activation change clears the rules on each affected site. WordPress regenerates the rules in each site's own context on its next request.
@@ -36,7 +38,7 @@ composer phpcs
 
 ## CI and WordPress.org distribution
 
-`.github/workflows/ci.yml` installs WordPress 7.2 Beta 4 and runs all checks against a disposable MySQL database. `.distignore` keeps development files out of the WordPress.org package. The package includes `plugin.php`, `src/`, `assets/`, `readme.txt`, and `LICENSE`.
+`.github/workflows/ci.yml` installs WordPress 7.2 Beta 4 and runs the checks against a disposable MySQL database. The deploy and Plugin Check workflows run `composer install --no-dev` before packaging. The WordPress.org package includes `plugin.php`, `src/`, `assets/`, `vendor/`, `readme.txt`, and `LICENSE`. `.distignore` excludes development files.
 
 The WordPress.org icon and banners are in `.wordpress-org/`. The SVG icon has 128 px and 256 px PNG fallbacks. `design/kagg-compatibility-background.png` is the background layer extracted from the KAGG Compatibility `banner.psd`; `design/wordpress-org-banner.svg` contains the icon and text overlay. Regenerate the banners with ImageMagick:
 

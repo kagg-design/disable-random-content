@@ -17,6 +17,11 @@
   "support": {
     "issues": "https://wordpress.org/support/plugin/disable-random-content"
   },
+  "autoload": {
+    "psr-4": {
+      "KAGG\\DisableRandomContent\\": "src/"
+    }
+  },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
     "phpcompatibility/php-compatibility": "^9.3.5",

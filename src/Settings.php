@@ -23,18 +23,16 @@ final class Settings {
 
 	/**
 	 * Register the settings screen and plugin action link.
-	 *
-	 * @param string $plugin_file Main plugin file.
 	 */
-	public function init( string $plugin_file ): void {
+	public function init(): void {
 		add_action( 'admin_menu', [ $this, 'add_page' ] );
 		add_action( 'admin_init', [ $this, 'register_fields' ] );
-		add_filter( 'plugin_action_links_' . plugin_basename( $plugin_file ), [ $this, 'add_settings_link' ] );
+		add_filter( 'plugin_action_links_' . plugin_basename( DISABLE_RANDOM_CONTENT_FILE ), [ $this, 'add_settings_link' ] );
 		add_action(
 			'admin_enqueue_scripts',
-			static function ( string $screen ) use ( $plugin_file ): void {
+			static function ( string $screen ): void {
 				if ( 'settings_page_' . self::PAGE === $screen ) {
-					wp_enqueue_style( self::PAGE, plugins_url( 'assets/css/settings.css', $plugin_file ), [], '1.1' );
+					wp_enqueue_style( self::PAGE, plugins_url( 'assets/css/settings.css', DISABLE_RANDOM_CONTENT_FILE ), [], '1.1' );
 				}
 			}
 		);

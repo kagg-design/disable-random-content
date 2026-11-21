@@ -7,7 +7,6 @@
 /.wordpress-org
 /design
 /tests
-/vendor
 
 # Files
 /.DS_Store

@@ -25,8 +25,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/src/Settings.php';
-require_once __DIR__ . '/src/RandomArchives.php';
-require_once __DIR__ . '/src/Main.php';
+/**
+ * Main plugin file.
+ */
+const DISABLE_RANDOM_CONTENT_FILE = __FILE__;
 
-( new Main( __FILE__ ) )->init();
+require_once __DIR__ . '/vendor/autoload.php';
+
+( new Main() )->init();

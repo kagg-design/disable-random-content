@@ -15,13 +15,6 @@ final class Main {
 	private const SITE_BATCH_SIZE = 100;
 
 	/**
-	 * Main plugin file.
-	 *
-	 * @var string
-	 */
-	private string $plugin_file;
-
-	/**
 	 * Random archive hooks.
 	 *
 	 * @var RandomArchives
@@ -29,13 +22,10 @@ final class Main {
 	private RandomArchives $archives;
 
 	/**
-	 * Set the main plugin file used by WordPress activation hooks.
-	 *
-	 * @param string $plugin_file Absolute path to the main plugin file.
+	 * Create the random archive hook handler.
 	 */
-	public function __construct( string $plugin_file ) {
-		$this->plugin_file = $plugin_file;
-		$this->archives    = new RandomArchives();
+	public function __construct() {
+		$this->archives = new RandomArchives();
 	}
 
 	/**
@@ -45,14 +35,14 @@ final class Main {
 		$this->archives->init();
 
 		if ( is_admin() ) {
-			( new Settings() )->init( $this->plugin_file );
+			( new Settings() )->init();
 		}
 
 		add_action( 'update_site_option_active_sitewide_plugins', [ $this, 'network_status_updated' ], 10, 4 );
 		add_action( 'add_site_option_active_sitewide_plugins', [ $this, 'network_status_added' ], 10, 3 );
 
-		register_activation_hook( $this->plugin_file, [ $this, 'activate' ] );
-		register_deactivation_hook( $this->plugin_file, [ $this, 'deactivate' ] );
+		register_activation_hook( DISABLE_RANDOM_CONTENT_FILE, [ $this, 'activate' ] );
+		register_deactivation_hook( DISABLE_RANDOM_CONTENT_FILE, [ $this, 'deactivate' ] );
 	}
 
 	/**
@@ -93,7 +83,7 @@ final class Main {
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function network_status_updated( string $option, $new_value, $old_value, int $network_id ): void {
-		$plugin     = plugin_basename( $this->plugin_file );
+		$plugin     = plugin_basename( DISABLE_RANDOM_CONTENT_FILE );
 		$was_active = is_array( $old_value ) && isset( $old_value[ $plugin ] );
 		$is_active  = is_array( $new_value ) && isset( $new_value[ $plugin ] );
 
@@ -112,7 +102,7 @@ final class Main {
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function network_status_added( string $option, $value, int $network_id ): void {
-		if ( is_array( $value ) && isset( $value[ plugin_basename( $this->plugin_file ) ] ) ) {
+		if ( is_array( $value ) && isset( $value[ plugin_basename( DISABLE_RANDOM_CONTENT_FILE ) ] ) ) {
 			$this->clear_network_rewrite_rules( $network_id );
 		}
 	}
