@@ -19,7 +19,7 @@
   },
   "autoload": {
     "psr-4": {
-      "KAGG\\DisableRandomContent\\": "src/"
+      "KAGG\\DisableRandomContent\\": "src/php/"
     }
   },
   "require-dev": {

@@ -2,7 +2,7 @@
 
 This WordPress plugin disables the random content redirects introduced in WordPress 7.2. Activate the plugin to turn them off. All settings are optional.
 
-Composer autoloads the classes in `src/`. Run `composer install` before activating the plugin from a source checkout.
+Composer autoloads the classes in `src/php/`. Run `composer install` before activating the plugin from a source checkout.
 
 In **Settings → Disable Random Content**, select individual categories, tags, other public taxonomy terms, or eligible post type archives to allow. An allowed archive works both with a random URL such as `/random/category/blog/` and with `?random` on its regular archive URL. The site-wide `/random/` stays disabled. Selections belong to each site in Multisite.
 
