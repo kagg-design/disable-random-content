@@ -26,9 +26,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Plugin version.
+ */
+const DISABLE_RANDOM_CONTENT_VERSION = '1.3.0';
+
+/**
  * Main plugin file.
  */
 const DISABLE_RANDOM_CONTENT_FILE = __FILE__;
+
+/**
+ * Base URL of the plugin directory.
+ */
+define( 'DISABLE_RANDOM_CONTENT_URL', untrailingslashit( plugin_dir_url( DISABLE_RANDOM_CONTENT_FILE ) ) );
 
 require_once __DIR__ . '/vendor/autoload.php';
 
