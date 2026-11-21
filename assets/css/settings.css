@@ -1,0 +1,24 @@
+.drc-settings h1.drc-settings-header {
+	align-items: center;
+	display: flex;
+	font-size: 30px;
+	font-weight: 600;
+	gap: 10px;
+	margin-block-end: 12px;
+}
+
+.drc-settings-header .drc-settings-icon {
+	background: url("../images/icon-128x128.png") center / contain no-repeat;
+	flex: 0 0 36px;
+	height: 36px;
+}
+
+.drc-settings .notice.inline {
+	margin-inline: 0;
+}
+
+.drc-settings .form-table select[multiple] {
+	max-width: 100%;
+	min-height: 10em;
+	width: 28em;
+}

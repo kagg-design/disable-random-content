@@ -25,6 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/src/Settings.php';
+require_once __DIR__ . '/src/RandomArchives.php';
 require_once __DIR__ . '/src/Main.php';
 
 ( new Main( __FILE__ ) )->init();

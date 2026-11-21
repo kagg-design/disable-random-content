@@ -22,33 +22,37 @@ final class Main {
 	private string $plugin_file;
 
 	/**
+	 * Random archive hooks.
+	 *
+	 * @var RandomArchives
+	 */
+	private RandomArchives $archives;
+
+	/**
 	 * Set the main plugin file used by WordPress activation hooks.
 	 *
 	 * @param string $plugin_file Absolute path to the main plugin file.
 	 */
 	public function __construct( string $plugin_file ) {
 		$this->plugin_file = $plugin_file;
+		$this->archives    = new RandomArchives();
 	}
 
 	/**
 	 * Register the plugin's WordPress hooks.
 	 */
 	public function init(): void {
-		add_filter( 'wp_enable_random_content_redirect', [ $this, 'disable_random_content_redirect' ], 0 );
+		$this->archives->init();
+
+		if ( is_admin() ) {
+			( new Settings() )->init( $this->plugin_file );
+		}
+
 		add_action( 'update_site_option_active_sitewide_plugins', [ $this, 'network_status_updated' ], 10, 4 );
 		add_action( 'add_site_option_active_sitewide_plugins', [ $this, 'network_status_added' ], 10, 3 );
 
 		register_activation_hook( $this->plugin_file, [ $this, 'activate' ] );
 		register_deactivation_hook( $this->plugin_file, [ $this, 'deactivate' ] );
-	}
-
-	/**
-	 * Disable the core random content redirect feature.
-	 *
-	 * @return bool Always false.
-	 */
-	public function disable_random_content_redirect(): bool {
-		return false;
 	}
 
 	/**
@@ -58,7 +62,7 @@ final class Main {
 	 */
 	public function activate( bool $network_wide ): void {
 		// The plugin file is not loaded again when reactivated in the same request.
-		add_filter( 'wp_enable_random_content_redirect', [ $this, 'disable_random_content_redirect' ], 0 );
+		$this->archives->init();
 
 		if ( ! $network_wide ) {
 			flush_rewrite_rules( false );
@@ -71,7 +75,7 @@ final class Main {
 	 * @param bool $network_wide Whether the plugin is deactivated for the network.
 	 */
 	public function deactivate( bool $network_wide ): void {
-		remove_filter( 'wp_enable_random_content_redirect', [ $this, 'disable_random_content_redirect' ], 0 );
+		$this->archives->remove_hooks();
 
 		if ( ! $network_wide ) {
 			flush_rewrite_rules( false );

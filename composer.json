@@ -41,5 +41,8 @@
       "@integration",
       "@integration:multisite"
     ]
+  },
+  "require": {
+    "ext-ctype": "*"
   }
 }

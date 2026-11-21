@@ -1,10 +1,12 @@
 # Disable Random Content
 
-This WordPress plugin disables the random content redirects introduced in WordPress 7.2. It removes their generated rewrite rules and prevents random selection for requests containing `random`.
+This WordPress plugin disables the random content redirects introduced in WordPress 7.2. Activate the plugin to turn them off. All settings are optional.
 
-The main plugin file is `plugin.php`. The hook implementation is in `src/Main.php`; WordPress loads it directly. Composer installs development tools only. On a multisite network, a change in network activation clears each site's saved rewrite rules. WordPress regenerates them in that site's own context on its next request.
+In **Settings → Disable Random Content**, select individual categories, tags, other public taxonomy terms, or eligible post type archives to allow. An allowed archive works both with a random URL such as `/random/category/blog/` and with `?random` on its regular archive URL. The site-wide `/random/` stays disabled. Selections belong to each site in Multisite.
 
-The disabling filter runs at priority 0, so another plugin can override it at a later priority. If the final filter value changes, refresh rewrite rules once so the saved `/random/` route matches that value.
+The plugin clears a site's saved rewrite rules after its settings change. On a multisite network, an activation change clears the rules on each affected site. WordPress regenerates the rules in each site's own context on its next request.
+
+With empty settings, a later callback on `wp_enable_random_content_redirect` can explicitly re-enable the core feature. Refresh rewrite rules after changing such an override.
 
 ## Integration tests
 
@@ -34,7 +36,7 @@ composer phpcs
 
 ## CI and WordPress.org distribution
 
-`.github/workflows/ci.yml` installs WordPress 7.2 Beta 4 and runs all checks against a disposable MySQL database. `.distignore` keeps development files out of the WordPress.org package; the package contains `plugin.php`, `src/Main.php`, `readme.txt`, and `LICENSE`.
+`.github/workflows/ci.yml` installs WordPress 7.2 Beta 4 and runs all checks against a disposable MySQL database. `.distignore` keeps development files out of the WordPress.org package. The package includes `plugin.php`, `src/`, `assets/`, `readme.txt`, and `LICENSE`.
 
 The WordPress.org icon and banners are in `.wordpress-org/`. The SVG icon has 128 px and 256 px PNG fallbacks. `design/kagg-compatibility-background.png` is the background layer extracted from the KAGG Compatibility `banner.psd`; `design/wordpress-org-banner.svg` contains the icon and text overlay. Regenerate the banners with ImageMagick:
 
