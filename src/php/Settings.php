@@ -181,7 +181,7 @@ final class Settings {
 	}
 
 	/**
-	 * Render the settings form.
+	 * Render the settings form below the notices printed by WordPress.
 	 */
 	public function render_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -196,7 +196,6 @@ final class Settings {
 					<?php esc_html_e( 'On activation, this plugin disables all built-in WordPress random content redirects. Use the settings below to allow redirects for individual archives.', 'disable-random-content' ); ?>
 				</p>
 			</div>
-			<?php settings_errors(); ?>
 			<form action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
 				<?php settings_fields( self::PAGE ); ?>
 				<?php do_settings_sections( self::PAGE ); ?>
