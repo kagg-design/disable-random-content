@@ -22,3 +22,9 @@
 	min-height: 10em;
 	width: 28em;
 }
+
+@media screen and (max-width: 782px) {
+	.drc-settings .form-table select[multiple] {
+		width: 100%;
+	}
+}
