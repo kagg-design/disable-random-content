@@ -238,7 +238,7 @@ final class Settings {
 	}
 
 	/**
-	 * List available terms, grouped by taxonomy.
+	 * List available terms under labels that include each taxonomy key.
 	 *
 	 * @return array<string, array<int, string>> Grouped term labels.
 	 */
@@ -260,6 +260,8 @@ final class Settings {
 				continue;
 			}
 
+			$group_label = sprintf( '%s (%s)', $taxonomy->label, $taxonomy->name );
+
 			foreach ( $terms as $term ) {
 				$label = get_term_parents_list(
 					$term->term_id,
@@ -270,7 +272,7 @@ final class Settings {
 					]
 				);
 
-				$groups[ $taxonomy->label ][ $term->term_id ] = is_string( $label ) ? substr( $label, 0, -3 ) : $term->name;
+				$groups[ $group_label ][ $term->term_id ] = is_string( $label ) ? substr( $label, 0, -3 ) : $term->name;
 			}
 		}
 
