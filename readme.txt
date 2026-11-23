@@ -1,7 +1,7 @@
 === Disable Random Content ===
 Contributors: kaggdesign, ernest35
 Tags: random content, redirects, permalinks
-Requires at least: 7.2
+Requires at least: 7.1
 Tested up to: 7.2
 Requires PHP: 7.4
 Stable tag: 1.3.1
@@ -30,6 +30,8 @@ It does not affect unrelated random-order queries in themes or other plugins.
 2. Install and activate the plugin. On Multisite, activate it for one site or across the network.
 
 No settings or manual permalink changes are required.
+
+You can install and activate the plugin on WordPress 7.1 ahead of an upgrade. It starts controlling random redirects when the site runs WordPress 7.2 or later.
 
 == Frequently Asked Questions ==
 

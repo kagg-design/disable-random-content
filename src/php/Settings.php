@@ -28,6 +28,11 @@ final class Settings {
 		add_action( 'admin_menu', [ $this, 'add_page' ] );
 		add_action( 'admin_init', [ $this, 'register_fields' ] );
 		add_filter( 'plugin_action_links_' . plugin_basename( DISABLE_RANDOM_CONTENT_FILE ), [ $this, 'add_settings_link' ] );
+
+		if ( defined( 'DISABLE_RANDOM_CONTENT_DEMO' ) && true === DISABLE_RANDOM_CONTENT_DEMO ) {
+			add_action( 'admin_notices', [ $this, 'render_demo_notice' ] );
+		}
+
 		add_action(
 			'admin_enqueue_scripts',
 			static function ( string $screen ): void {
@@ -42,6 +47,23 @@ final class Settings {
 					DISABLE_RANDOM_CONTENT_VERSION
 				);
 			}
+		);
+	}
+
+	/**
+	 * Point Playground visitors to the interactive demo on the front page.
+	 *
+	 * @noinspection HtmlUnknownTarget
+	 */
+	public function render_demo_notice(): void {
+		wp_admin_notice(
+			sprintf(
+				'%s <a class="button button-primary" href="%s">%s</a>',
+				esc_html__( 'Try Disable Random Content on the demo homepage. See which random links work and which are blocked.', 'disable-random-content' ),
+				esc_url( home_url( '/' ) ),
+				esc_html__( 'Open demo homepage', 'disable-random-content' )
+			),
+			[ 'type' => 'info' ]
 		);
 	}
 

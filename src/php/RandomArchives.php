@@ -8,6 +8,7 @@
 namespace KAGG\DisableRandomContent;
 
 use WP_MatchesMapRegex;
+use WP_Rewrite;
 use WP_Term;
 
 /**
@@ -17,6 +18,10 @@ final class RandomArchives {
 
 	/** Attach the filters and invalidation hooks. */
 	public function init(): void {
+		if ( ! method_exists( WP_Rewrite::class, 'get_random_base' ) ) {
+			return;
+		}
+
 		add_filter( 'wp_enable_random_content_redirect', [ $this, 'has_exceptions' ], 0 );
 		add_filter( 'random_rewrite_rules', [ $this, 'filter_rewrite_rules' ] );
 		add_filter( 'request', [ $this, 'filter_request' ], PHP_INT_MAX );
