@@ -8,6 +8,7 @@
 namespace KAGG\DisableRandomContent;
 
 use WP_Post_Type;
+use WP_Rewrite;
 use WP_Taxonomy;
 use WP_Term;
 
@@ -20,6 +21,9 @@ final class Settings {
 
 	/** Site option name. */
 	public const OPTION = 'disable_random_content_settings';
+
+	/** Public Blueprint endpoint used by the Playground demo. */
+	private const DEMO_BLUEPRINT_URL = 'https://wordpress.org/plugins/wp-json/plugins/v1/plugin/disable-random-content/blueprint.json';
 
 	/**
 	 * Register the settings screen and plugin action link.
@@ -51,17 +55,36 @@ final class Settings {
 	}
 
 	/**
-	 * Point Playground visitors to the interactive demo on the front page.
+	 * Point Playground visitors to a demo with random redirects available.
 	 *
 	 * @noinspection HtmlUnknownTarget
 	 */
 	public function render_demo_notice(): void {
+		$message    = esc_html__( 'Try Disable Random Content on the demo homepage. See which random links work and which are blocked.', 'disable-random-content' );
+		$url        = home_url( '/' );
+		$label      = esc_html__( 'Open demo homepage', 'disable-random-content' );
+		$attributes = '';
+
+		if ( ! method_exists( WP_Rewrite::class, 'get_random_base' ) ) {
+			$message    = esc_html__( 'Random redirects require WordPress 7.2. In the Playground toolbar at the bottom, open Site Settings, choose 7.2-RC2 under WordPress Version, then click Create a fresh Playground.', 'disable-random-content' );
+			$url        = add_query_arg(
+				[
+					'wp'            => 'beta',
+					'blueprint-url' => rawurlencode( self::DEMO_BLUEPRINT_URL ),
+				],
+				'https://playground.wordpress.net/'
+			);
+			$label      = esc_html__( 'Open WordPress 7.2 demo', 'disable-random-content' );
+			$attributes = ' target="_blank" rel="noopener noreferrer"';
+		}
+
 		wp_admin_notice(
 			sprintf(
-				'%s <a class="button button-primary" href="%s">%s</a>',
-				esc_html__( 'Try Disable Random Content on the demo homepage. See which random links work and which are blocked.', 'disable-random-content' ),
-				esc_url( home_url( '/' ) ),
-				esc_html__( 'Open demo homepage', 'disable-random-content' )
+				'%s <a class="button button-primary" href="%s"%s>%s</a>',
+				$message,
+				esc_url( $url ),
+				$attributes,
+				$label
 			),
 			[ 'type' => 'info' ]
 		);

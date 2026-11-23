@@ -1,6 +1,6 @@
 === Disable Random Content ===
 Contributors: kaggdesign, ernest35
-Tags: random content, redirects, permalinks
+Tags: random content, random post, redirects, permalinks
 Requires at least: 7.1
 Tested up to: 7.2
 Requires PHP: 7.4
@@ -8,11 +8,13 @@ Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Disable Random Content turns off WordPress 7.2 random content redirects. Activate it and you're done; no settings required.
+Turn off the random post redirects introduced in WordPress 7.2, including /random/. Install and activate the plugin.
 
 == Description ==
 
 Don't want WordPress to send visitors to a random post? Disable Random Content turns off the random content redirect feature introduced in WordPress 7.2 as soon as you activate it. All settings are optional.
+
+Try the plugin in the [WordPress Playground demo linked in the setup guide](https://kagg.eu/how-to-disable-random-in-wordpress-7-2/). Compare a blocked site-wide random link with an allowed random link for the Blog category.
 
 === What it does ===
 
@@ -26,10 +28,12 @@ It does not affect unrelated random-order queries in themes or other plugins.
 
 == Installation ==
 
-1. In WordPress, go to Plugins > Add New and search for "Disable Random Content".
+1. In WordPress, go to Plugins > Add New Plugin and enter `slug:disable-random-content` in the keyword search field.
 2. Install and activate the plugin. On Multisite, activate it for one site or across the network.
 
 No settings or manual permalink changes are required.
+
+With WP-CLI, run `wp plugin install disable-random-content --activate` for a single site or `wp plugin install disable-random-content --activate-network` for a Multisite network.
 
 You can install and activate the plugin on WordPress 7.1 ahead of an upgrade. It starts controlling random redirects when the site runs WordPress 7.2 or later.
 
@@ -62,6 +66,8 @@ Yes. You can activate it for an individual site or across the network.
 = Can I allow random redirects for selected archives? =
 
 Yes. Go to Settings > Disable Random Content and select the archives you want to allow. For example, selecting the Blog category allows `/random/category/blog/` and `/category/blog/?random`. Select a subcategory separately to enable its own random link. The site-wide `/random/` stays disabled.
+
+For a custom post type, select its archive under **Post type archives**. For example, with the default random base, allowing an eligible Projects archive with the slug `projects` enables `/random/projects/` and `/projects/?random=1`. A post type appears in the list when it is publicly queryable, has an archive, and supports random selection in WordPress.
 
 = Can I restore all of WordPress's built-in random redirects? =
 
