@@ -1,0 +1,39 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "landingPage": "/",
+  "preferredVersions": {
+    "php": "8.3",
+    "wp": "beta"
+  },
+  "login": true,
+  "siteOptions": {
+    "blogname": "Disable Random Content Demo",
+    "permalink_structure": "/%postname%/"
+  },
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "disable-random-content"
+      },
+      "options": {
+        "activate": true
+      }
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\n$categories = [\n\t'blog'    => [\n\t\t'name'  => 'Blog',\n\t\t'posts' => [ 'A Morning in the Garden', 'A Walk by the River', 'Notes from the Workshop' ],\n\t],\n\t'updates' => [\n\t\t'name'  => 'Updates',\n\t\t'posts' => [ 'November Release Notes', 'A Change to Our Opening Hours' ],\n\t],\n];\n\nforeach ( $categories as $slug => $category ) {\n\t$term = term_exists( $slug, 'category' ) ?: wp_insert_term( $category['name'], 'category', [ 'slug' => $slug ] );\n\tif ( is_wp_error( $term ) ) {\n\t\tthrow new RuntimeException( $term->get_error_message() );\n\t}\n\n\t$category_id = (int) $term['term_id'];\n\tforeach ( $category['posts'] as $title ) {\n\t\t$post_slug = sanitize_title( $title );\n\t\tif ( get_page_by_path( $post_slug, OBJECT, 'post' ) ) {\n\t\t\tcontinue;\n\t\t}\n\n\t\t$post = wp_insert_post(\n\t\t\t[\n\t\t\t\t'post_title'    => $title,\n\t\t\t\t'post_name'     => $post_slug,\n\t\t\t\t'post_status'   => 'publish',\n\t\t\t\t'post_category' => [ $category_id ],\n\t\t\t\t'post_content'  => 'This demo post belongs to the ' . $category['name'] . ' category.',\n\t\t\t],\n\t\t\ttrue\n\t\t);\n\t\tif ( is_wp_error( $post ) ) {\n\t\t\tthrow new RuntimeException( $post->get_error_message() );\n\t\t}\n\t}\n}\n\n$blog = get_term_by( 'slug', 'blog', 'category' );\nupdate_option( 'disable_random_content_settings', [ 'terms' => [ (int) $blog->term_id ], 'post_types' => [] ] );",
+      "progress": {
+        "caption": "Creating sample posts and allowing the Blog archive"
+      }
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\n$content = sprintf(\n\t'<p>Disable Random Content is active. The Blog category is the only archive allowed to redirect to a random post.</p>\n<ul>\n<li><a href=\"%s\">Try the site-wide /random/</a>. WordPress returns a 404.</li>\n<li><a href=\"%s\">Try a random Blog post</a>. Each visit picks from three published Blog posts.</li>\n<li><a href=\"%s\">Try Updates with ?random=1</a>. The regular Updates archive opens with both published posts.</li>\n</ul>\n<p><a href=\"%s\">Change the allowed archives in Settings</a> and try the links again. Use the site title to return here from any page.</p>',\n\tesc_url( home_url( '/random/' ) ),\n\tesc_url( home_url( '/random/category/blog/' ) ),\n\tesc_url( add_query_arg( 'random', '1', get_category_link( get_term_by( 'slug', 'updates', 'category' ) ) ) ),\n\tesc_url( admin_url( 'admin.php?page=disable-random-content' ) )\n);\n\n$page = get_page_by_path( 'try-disable-random-content' );\n$page_id = wp_insert_post(\n\t[\n\t\t'ID'           => $page ? $page->ID : 0,\n\t\t'post_type'    => 'page',\n\t\t'post_status'  => 'publish',\n\t\t'post_title'   => 'Try Disable Random Content',\n\t\t'post_name'    => 'try-disable-random-content',\n\t\t'post_content' => $content,\n\t],\n\ttrue\n);\nif ( is_wp_error( $page_id ) ) {\n\tthrow new RuntimeException( $page_id->get_error_message() );\n}\n\nupdate_option( 'page_on_front', $page_id );\nupdate_option( 'show_on_front', 'page' );\nflush_rewrite_rules( false );",
+      "progress": {
+        "caption": "Setting up the demo home page"
+      }
+    }
+  ]
+}
