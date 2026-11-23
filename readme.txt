@@ -4,7 +4,7 @@ Tags: random content, redirects, permalinks
 Requires at least: 7.2
 Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,6 +70,9 @@ Deactivate the plugin to restore the core behavior. Other code on your site may 
 The plugin makes no external requests and adds no tracking. Archive selections are stored in a WordPress option for the current site. WordPress rebuilds the site's permalink rules after changes to the selections.
 
 == Changelog ==
+
+= 1.3.1 =
+* Added an interactive WordPress Playground demo for the WordPress.org Live Preview button.
 
 = 1.3.0 =
 * Added an optional settings page under Settings > Disable Random Content to allow random redirects for selected archives.
