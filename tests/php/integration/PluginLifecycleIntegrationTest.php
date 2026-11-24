@@ -47,6 +47,30 @@ class PluginLifecycleIntegrationTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Remote plugin management may end the request before WordPress fully loads.
+	 */
+	public function test_early_lifecycle_changes_invalidate_saved_rules(): void {
+		global $wp_actions;
+
+		$plugin = plugin_basename( dirname( __DIR__, 3 ) . '/plugin.php' );
+		$loaded = $wp_actions['wp_loaded'];
+		unset( $wp_actions['wp_loaded'] );
+
+		try {
+			update_option( 'rewrite_rules', [ 'random/?$' => 'index.php?random=1' ] );
+			do_action( 'activate_' . $plugin, false );
+			self::assertFalse( get_option( 'rewrite_rules' ) );
+
+			update_option( 'rewrite_rules', [ 'post/?$' => 'index.php?name=post' ] );
+			do_action( 'deactivate_' . $plugin, false );
+			self::assertFalse( get_option( 'rewrite_rules' ) );
+		} finally {
+			$wp_actions['wp_loaded'] = $loaded; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore the hook count after simulating an early request.
+			do_action( 'activate_' . $plugin, false );
+		}
+	}
+
+	/**
 	 * Network reactivation restores the filter while leaving rule invalidation deferred.
 	 */
 	public function test_same_request_network_reactivation_disables_random_content(): void {

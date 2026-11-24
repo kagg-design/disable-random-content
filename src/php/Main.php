@@ -55,7 +55,7 @@ final class Main {
 		$this->archives->init();
 
 		if ( ! $network_wide ) {
-			flush_rewrite_rules( false );
+			$this->refresh_site_rewrite_rules();
 		}
 	}
 
@@ -68,8 +68,21 @@ final class Main {
 		$this->archives->remove_hooks();
 
 		if ( ! $network_wide ) {
-			flush_rewrite_rules( false );
+			$this->refresh_site_rewrite_rules();
 		}
+	}
+
+	/**
+	 * Refresh the current site's rules after its active plugins change.
+	 */
+	private function refresh_site_rewrite_rules(): void {
+		if ( did_action( 'wp_loaded' ) ) {
+			flush_rewrite_rules( false );
+			return;
+		}
+
+		// Remote management tools can end the request before a deferred flush runs.
+		delete_option( 'rewrite_rules' );
 	}
 
 	/**

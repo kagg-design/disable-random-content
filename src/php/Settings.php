@@ -58,6 +58,7 @@ final class Settings {
 	 * Point Playground visitors to a demo with random redirects available.
 	 *
 	 * @noinspection HtmlUnknownTarget
+	 * @noinspection HtmlUnknownAttribute
 	 */
 	public function render_demo_notice(): void {
 		$message    = esc_html__( 'Try Disable Random Content on the demo homepage. See which random links work and which are blocked.', 'disable-random-content' );
@@ -66,10 +67,11 @@ final class Settings {
 		$attributes = '';
 
 		if ( ! method_exists( WP_Rewrite::class, 'get_random_base' ) ) {
-			$message    = esc_html__( 'Random redirects require WordPress 7.2. In the Playground toolbar at the bottom, open Site Settings, choose 7.2-RC2 under WordPress Version, then click Create a fresh Playground.', 'disable-random-content' );
+			$message    = esc_html__( 'Random redirects require WordPress 7.2. Open Site Settings in the Playground toolbar at the bottom. Under WordPress Version, choose 7.2 or a 7.2 release candidate, then click Create a fresh Playground.', 'disable-random-content' );
 			$url        = add_query_arg(
 				[
 					'wp'            => 'beta',
+					'url'           => rawurlencode( '/' ),
 					'blueprint-url' => rawurlencode( self::DEMO_BLUEPRINT_URL ),
 				],
 				'https://playground.wordpress.net/'
@@ -165,6 +167,10 @@ final class Settings {
 	 * Register the settings section and multiple-selection fields.
 	 */
 	public function register_fields(): void {
+		if ( ! method_exists( WP_Rewrite::class, 'get_random_base' ) ) {
+			return;
+		}
+
 		register_setting( self::PAGE, self::OPTION, [ 'sanitize_callback' => [ $this, 'sanitize' ] ] );
 		add_settings_section(
 			'archives',
@@ -232,20 +238,28 @@ final class Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		$random_redirects_available = method_exists( WP_Rewrite::class, 'get_random_base' );
 		?>
 		<div class="wrap drc-settings">
 			<h1 class="drc-settings-header"><span class="drc-settings-icon" aria-hidden="true"></span><?php esc_html_e( 'Disable Random Content', 'disable-random-content' ); ?></h1>
 			<div class="notice notice-info inline">
 				<p>
-					<strong><?php esc_html_e( 'All settings are optional.', 'disable-random-content' ); ?></strong>
-					<?php esc_html_e( 'On activation, this plugin disables all built-in WordPress random content redirects. Use the settings below to allow redirects for individual archives.', 'disable-random-content' ); ?>
+					<?php if ( $random_redirects_available ) : ?>
+						<strong><?php esc_html_e( 'All settings are optional.', 'disable-random-content' ); ?></strong>
+						<?php esc_html_e( 'On activation, this plugin disables all built-in WordPress random content redirects. Use the settings below to allow redirects for individual archives.', 'disable-random-content' ); ?>
+					<?php else : ?>
+						<?php esc_html_e( 'Archive settings become available in WordPress 7.2. You can keep this plugin active before upgrading.', 'disable-random-content' ); ?>
+					<?php endif; ?>
 				</p>
 			</div>
-			<form action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
-				<?php settings_fields( self::PAGE ); ?>
-				<?php do_settings_sections( self::PAGE ); ?>
-				<?php submit_button(); ?>
-			</form>
+			<?php if ( $random_redirects_available ) : ?>
+				<form action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
+					<?php settings_fields( self::PAGE ); ?>
+					<?php do_settings_sections( self::PAGE ); ?>
+					<?php submit_button(); ?>
+				</form>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
