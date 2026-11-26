@@ -3,7 +3,7 @@
   "landingPage": "/wp-admin/options-general.php?page=disable-random-content",
   "preferredVersions": {
     "php": "8.3",
-    "wp": "https://playground.wordpress.net/plugin-proxy.php?url=https://wordpress.org/wordpress-7.2-RC2.zip"
+    "wp": "https://playground.wordpress.net/plugin-proxy.php?url=https://wordpress.org/wordpress-7.2-RC3.zip"
   },
   "login": true,
   "constants": {
