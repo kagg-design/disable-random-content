@@ -7,6 +7,7 @@
 
 namespace KAGG\DisableRandomContent\Tests\Integration;
 
+use KAGG\DisableRandomContent\Main;
 use KAGG\DisableRandomContent\Settings;
 use RuntimeException;
 use WP_UnitTestCase;
@@ -42,6 +43,33 @@ class AllowedArchivesIntegrationTest extends WP_UnitTestCase {
 			$_SERVER['REQUEST_METHOD'] = $this->request_method;
 		}
 		parent::tear_down();
+	}
+
+	/** An update removes stale rules once and preserves the site's archive selections. */
+	public function test_rewrite_migration_preserves_selected_category(): void {
+		global $wp_rewrite;
+
+		$base     = $wp_rewrite->get_random_base();
+		$category = self::factory()->category->create( [ 'slug' => 'blog' ] );
+		$post     = self::factory()->post->create( [ 'post_category' => [ $category ] ] );
+		$settings = [ 'terms' => [ $category ] ];
+		update_option( Settings::OPTION, $settings );
+		delete_option( 'disable_random_content_rewrite_rules_version' );
+		update_option( 'rewrite_rules', [ $base . '/?$' => 'index.php?random=1' ] );
+
+		$plugin = new Main();
+		$plugin->maybe_migrate_rewrite_rules();
+
+		self::assertFalse( get_option( 'rewrite_rules' ) );
+		self::assertSame( $settings, get_option( Settings::OPTION ) );
+		$this->go_to( home_url( "/$base/" ) );
+		self::assertTrue( is_404() );
+		self::assertSame( [ get_permalink( $post ), 302 ], $this->random_redirect( "/$base/category/blog/" ) );
+
+		$rules = get_option( 'rewrite_rules' );
+		self::assertNotEmpty( $rules );
+		$plugin->maybe_migrate_rewrite_rules();
+		self::assertSame( $rules, get_option( 'rewrite_rules' ) );
 	}
 
 	/** Both URL forms select from the chosen category only. */

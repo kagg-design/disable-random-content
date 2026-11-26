@@ -7,12 +7,20 @@
 
 namespace KAGG\DisableRandomContent;
 
+use WP_Rewrite;
+
 /**
- * Disables random redirects and refreshes rewrite rules when plugin status changes.
+ * Disables random redirects and manages the plugin's rewrite rule lifecycle.
  */
 final class Main {
 	/** Keep only this many site IDs in memory at a time; all batches are processed. */
 	private const SITE_BATCH_SIZE = 100;
+
+	/** Per-site marker for completed rewrite rule migrations. */
+	private const REWRITE_RULES_VERSION_OPTION = 'disable_random_content_rewrite_rules_version';
+
+	/** Current rewrite rule migration version. */
+	private const REWRITE_RULES_VERSION = 1;
 
 	/**
 	 * Random archive hooks.
@@ -34,6 +42,8 @@ final class Main {
 	public function init(): void {
 		$this->archives->init();
 
+		add_action( 'init', [ $this, 'maybe_migrate_rewrite_rules' ] );
+
 		if ( is_admin() ) {
 			( new Settings() )->init();
 		}
@@ -43,6 +53,19 @@ final class Main {
 
 		register_activation_hook( DISABLE_RANDOM_CONTENT_FILE, [ $this, 'activate' ] );
 		register_deactivation_hook( DISABLE_RANDOM_CONTENT_FILE, [ $this, 'deactivate' ] );
+	}
+
+	/** Clear stale rules once on each site, including after an update of the active plugin. */
+	public function maybe_migrate_rewrite_rules(): void {
+		if ( ! method_exists( WP_Rewrite::class, 'get_random_base' ) ||
+			(int) get_option( self::REWRITE_RULES_VERSION_OPTION, 0 ) >= self::REWRITE_RULES_VERSION ) {
+			return;
+		}
+
+		// WordPress regenerates these rules in this site's context when it needs them.
+		if ( delete_option( 'rewrite_rules' ) || ! get_option( 'rewrite_rules' ) ) {
+			update_option( self::REWRITE_RULES_VERSION_OPTION, self::REWRITE_RULES_VERSION, true );
+		}
 	}
 
 	/**
