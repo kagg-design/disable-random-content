@@ -1,18 +1,20 @@
 === Disable Random Content ===
 Contributors: kaggdesign, ernest35
-Tags: random content, random post, redirects, permalinks
+Tags: random content, random posts, redirects, random url, multisite
 Requires at least: 7.1
 Tested up to: 7.2
 Requires PHP: 7.4
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Disable WordPress 7.2 random post redirects, including /random/, on activation. Keep random links for selected archives.
+Disable Random Content turns off WordPress 7.2 random content redirects, including /random/. Keep random links for selected archives.
 
 == Description ==
 
-Activate Disable Random Content to turn off WordPress 7.2's `/random/` URL and random redirects from archives. To keep random links for specific categories, tags, or other eligible archives, select them under Settings > Disable Random Content. For example, allow `/random/category/blog/` and keep the site-wide `/random/` disabled.
+Activate Disable Random Content to turn off the random redirect at `/random/` in WordPress 7.2. The plugin also stops WordPress from sending visitors to random posts from archive URLs.
+
+To keep random links for specific categories, tags, or other eligible archives, select them under Settings > Disable Random Content. For example, allow `/random/category/blog/` and keep the site-wide `/random/` disabled.
 
 You can activate the plugin on WordPress 7.1 ahead of the upgrade, either for one site or across a Multisite network. It starts controlling random redirects when the site runs WordPress 7.2 or later.
 
@@ -45,7 +47,7 @@ With WP-CLI, run `wp plugin install disable-random-content --activate` for a sin
 
 == Frequently Asked Questions ==
 
-= How do I disable the `/random/` URL in WordPress 7.2? =
+= How do I stop WordPress 7.2 from redirecting visitors to random posts? =
 
 Activate Disable Random Content. It turns off the default `/random/` URL, random redirects on archive URLs, and redirects triggered by the `random` query parameter. It uses the `wp_enable_random_content_redirect` filter and supports a custom Random base set in Settings > Permalinks, such as `/shuffle/`.
 
@@ -88,6 +90,9 @@ Deactivate the plugin to restore the core behavior. Other code on your site may 
 The plugin makes no external requests and adds no tracking. Archive selections are stored in a WordPress option for the current site. WordPress rebuilds the site's permalink rules after changes to the selections.
 
 == Changelog ==
+
+= 1.3.3 =
+* Fixed stale `/random/` routes after updating an active plugin. Version 1.3.3 clears saved rewrite rules once per site so WordPress can rebuild them using the site's existing archive selections.
 
 = 1.3.2 =
 * Fixed stale rewrite rules when a remote tool such as MainWP activates or deactivates the plugin before WordPress finishes loading.
