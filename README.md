@@ -2,13 +2,15 @@
 
 This WordPress plugin disables the random content redirects introduced in WordPress 7.2. Activate the plugin to turn them off. All settings are optional.
 
+[Install from WordPress.org](https://wordpress.org/plugins/disable-random-content/) or open [Live Preview](https://wordpress.org/plugins/disable-random-content/?preview=1) and select **Open demo homepage** to try the site-wide and Blog category links.
+
 Composer autoloads the classes in `src/php/`. Run `composer install` before activating the plugin from a source checkout.
 
 In **Settings → Disable Random Content**, select individual categories, tags, other public taxonomy terms, or eligible post type archives to allow. An allowed archive works both with a random URL such as `/random/category/blog/` and with `?random` on its regular archive URL. The site-wide `/random/` stays disabled. Selections belong to each site in Multisite.
 
 The plugin clears a site's saved rewrite rules after its settings change. On a multisite network, an activation change clears the rules on each affected site. WordPress regenerates the rules in each site's own context on its next request.
 
-With empty settings, a later callback on `wp_enable_random_content_redirect` can explicitly re-enable the core feature. Refresh rewrite rules after changing such an override.
+An earlier callback that disables `wp_enable_random_content_redirect` also disables random redirects for selected archives. With empty settings, a later callback can explicitly re-enable the core feature. Refresh rewrite rules after changing such an override.
 
 ## Integration tests
 

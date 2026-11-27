@@ -8,6 +8,7 @@
 namespace KAGG\DisableRandomContent\Tests\Integration;
 
 use KAGG\DisableRandomContent\Main;
+use KAGG\DisableRandomContent\RandomArchives;
 use KAGG\DisableRandomContent\Settings;
 use RuntimeException;
 use WP_UnitTestCase;
@@ -72,6 +73,24 @@ class AllowedArchivesIntegrationTest extends WP_UnitTestCase {
 		self::assertSame( $rules, get_option( 'rewrite_rules' ) );
 	}
 
+	/** An earlier opt-out still blocks redirects when the site has selected archives. */
+	public function test_selected_category_respects_earlier_global_opt_out(): void {
+		$blog = self::factory()->category->create( [ 'slug' => 'blog' ] );
+		$post = self::factory()->post->create( [ 'post_category' => [ $blog ] ] );
+		update_option( Settings::OPTION, [ 'terms' => [ $blog ] ] );
+
+		$url = '/category/blog/?random=1';
+		add_filter( 'wp_enable_random_content_redirect', '__return_false', -1 );
+		try {
+			self::assertFalse( wp_is_random_content_redirect_enabled() );
+			self::assertNull( $this->random_redirect( $url ) );
+		} finally {
+			remove_filter( 'wp_enable_random_content_redirect', '__return_false', -1 );
+		}
+
+		self::assertSame( [ get_permalink( $post ), 302 ], $this->random_redirect( $url ) );
+	}
+
 	/** Both URL forms select from the chosen category only. */
 	public function test_only_selected_category_can_redirect(): void {
 		global $wp_rewrite;
@@ -100,6 +119,64 @@ class AllowedArchivesIntegrationTest extends WP_UnitTestCase {
 		$this->go_to( home_url( "$base/category/blog/" ) );
 		self::assertTrue( is_404() );
 		self::assertFalse( wp_is_random_content_redirect_enabled() );
+	}
+
+	/** A configured Polylang language scopes the request without bypassing the archive selection. */
+	public function test_polylang_language_preserves_only_selected_archive_redirects(): void {
+		require_once __DIR__ . '/fixtures/polylang.php';
+
+		$blog      = self::factory()->category->create( [ 'slug' => 'blog' ] );
+		$news      = self::factory()->category->create( [ 'slug' => 'news' ] );
+		$archives  = new RandomArchives();
+		$languages = static fn() => [ 'en', 'fr' ];
+		update_option( Settings::OPTION, [ 'terms' => [ $blog ] ] );
+
+		add_filter( 'disable_random_content_test_polylang_languages', $languages );
+		try {
+			$selected = [
+				'cat'    => $blog,
+				'lang'   => 'en',
+				'random' => '1',
+			];
+			self::assertSame( $selected, $archives->filter_request( $selected ) );
+			self::assertSame(
+				[
+					'cat'  => $blog,
+					'lang' => 'unknown',
+				],
+				$archives->filter_request(
+					[
+						'cat'    => $blog,
+						'lang'   => 'unknown',
+						'random' => '1',
+					]
+				)
+			);
+			self::assertSame(
+				[
+					'cat'  => $news,
+					'lang' => 'fr',
+				],
+				$archives->filter_request(
+					[
+						'cat'    => $news,
+						'lang'   => 'fr',
+						'random' => '1',
+					]
+				)
+			);
+			self::assertSame(
+				[ 'lang' => 'en' ],
+				$archives->filter_request(
+					[
+						'lang'   => 'en',
+						'random' => '1',
+					]
+				)
+			);
+		} finally {
+			remove_filter( 'disable_random_content_test_polylang_languages', $languages );
+		}
 	}
 
 	/** Term selection uses IDs and follows a parent slug change. */

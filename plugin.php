@@ -10,7 +10,7 @@
  * Plugin Name:       Disable Random Content
  * Plugin URI:        https://github.com/kagg-design/disable-random-content
  * Description:       Disables WordPress 7.2 random content redirects. Keep random links for selected archives.
- * Version:           1.3.3
+ * Version:           1.3.4
  * Requires at least: 7.1
  * Requires PHP:      7.4
  * Author:            KAGG Design, Ernest Behinov
@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Plugin version.
  */
-const DISABLE_RANDOM_CONTENT_VERSION = '1.3.3';
+const DISABLE_RANDOM_CONTENT_VERSION = '1.3.4';
 
 /**
  * Main plugin file.

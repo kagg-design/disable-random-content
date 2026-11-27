@@ -47,13 +47,14 @@ final class RandomArchives {
 	}
 
 	/**
-	 * Enable the core feature when this site has selected archives.
+	 * Keep the core feature enabled for selected archives when earlier filters allow it.
 	 *
-	 * @return bool Whether exceptions are configured.
+	 * @param bool $enabled Whether earlier filters allow random redirects.
+	 * @return bool Whether selected archives may redirect.
 	 */
-	public function has_exceptions(): bool {
+	public function has_exceptions( bool $enabled = true ): bool {
 		$settings = Settings::get();
-		return $settings['terms'] || $settings['post_types'];
+		return $enabled && ( $settings['terms'] || $settings['post_types'] );
 	}
 
 	/**
@@ -176,6 +177,15 @@ final class RandomArchives {
 	 */
 	private function allows( array $query_vars, array $settings ): bool {
 		unset( $query_vars['random'], $query_vars['paged'] );
+
+		// Polylang's language scopes the selected archive without identifying it.
+		if (
+			isset( $query_vars['lang'] ) && function_exists( 'pll_languages_list' )
+			&& in_array( $query_vars['lang'], pll_languages_list( [ 'fields' => 'slug' ] ), true )
+		) {
+			unset( $query_vars['lang'] );
+		}
+
 		if ( 1 === count( $query_vars ) && isset( $query_vars['post_type'] ) ) {
 			$type = $query_vars['post_type'];
 			return in_array( $type, $settings['post_types'], true ) && isset( Settings::post_types()[ $type ] );

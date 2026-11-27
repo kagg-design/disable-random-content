@@ -3,7 +3,7 @@
   "landingPage": "/wp-admin/options-general.php?page=disable-random-content",
   "preferredVersions": {
     "php": "8.3",
-    "wp": "https://playground.wordpress.net/plugin-proxy.php?url=https://wordpress.org/wordpress-7.2-RC3.zip"
+    "wp": "latest"
   },
   "login": true,
   "constants": {
@@ -13,7 +13,21 @@
     "blogname": "Disable Random Content Demo",
     "permalink_structure": "/%postname%/"
   },
+  "features": {
+    "networking": true
+  },
   "steps": [
+    {
+      "step": "runPHP",
+      "code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\nif ( version_compare( get_bloginfo( 'version' ), '7.2-beta', '>=' ) ) {\n    return;\n}\n\nrequire_once ABSPATH . 'wp-admin/includes/admin.php';\nrequire_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';\n\n$package = download_url( 'https://downloads.wordpress.org/release/wordpress-7.2-RC3.zip', 120 );\nif ( is_wp_error( $package ) ) {\n    throw new RuntimeException( $package->get_error_message() );\n}\n\ntry {\n    if ( hash_file( 'sha256', $package ) !== '59262c84d871e2cfbad5efd637a09ee5fdf8731e9764324f5df70d26a607fb40' ) {\n        throw new RuntimeException( 'The WordPress 7.2 RC3 download did not match the expected checksum.' );\n    }\n\n    $release = (object) [\n        'response' => 'upgrade',\n        'current'  => '7.2-RC3',\n        'version'  => '7.2-RC3',\n        'locale'   => 'en_US',\n        'packages' => (object) [ 'full' => $package, 'partial' => null, 'no_content' => null, 'new_bundled' => null, 'rollback' => null ],\n    ];\n\n    $upgrader = new Core_Upgrader( new WP_Ajax_Upgrader_Skin() );\n    $result   = $upgrader->upgrade( $release, [ 'pre_check_md5' => false ] );\n    if ( is_wp_error( $result ) ) {\n        throw new RuntimeException( $result->get_error_message() );\n    }\n    if ( '7.2-RC3' !== $result ) {\n        throw new RuntimeException( 'Playground did not finish the WordPress upgrade.' );\n    }\n} finally {\n    if ( is_file( $package ) ) {\n        unlink( $package );\n    }\n}",
+      "progress": {
+        "caption": "Preparing WordPress for the demo"
+      }
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\nif ( (int) get_option( 'db_version' ) !== (int) $GLOBALS['wp_db_version'] ) {\n    require_once ABSPATH . 'wp-admin/includes/upgrade.php';\n    wp_upgrade();\n}"
+    },
     {
       "step": "installPlugin",
       "pluginData": {
@@ -33,7 +47,7 @@
     },
     {
       "step": "runPHP",
-      "code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\nif ( method_exists( 'WP_Rewrite', 'get_random_base' ) ) {\n\t$content = sprintf(\n\t\t'<p>Disable Random Content is active. The Blog category is the only archive allowed to redirect to a random post.</p>\n\t<ul>\n\t<li><a href=\"%s\">Try the site-wide /random/</a>. WordPress returns a 404.</li>\n\t<li><a href=\"%s\">Try a random Blog post</a>. Each visit picks from three published Blog posts.</li>\n\t<li><a href=\"%s\">Try Updates with ?random=1</a>. The regular Updates archive opens with both published posts.</li>\n\t</ul>\n\t<p><a href=\"%s\">Change the allowed archives in Settings</a> and try the links again. Use the site title to return here from any page.</p>\n\t<p><a href=\"https://wordpress.org/plugins/disable-random-content/\" target=\"_blank\" rel=\"noopener noreferrer\">Install Disable Random Content on your site</a>.</p>',\n\t\tesc_url( home_url( '/random/' ) ),\n\t\tesc_url( home_url( '/random/category/blog/' ) ),\n\t\tesc_url( add_query_arg( 'random', '1', get_category_link( get_term_by( 'slug', 'updates', 'category' ) ) ) ),\n\t\tesc_url( admin_url( 'admin.php?page=disable-random-content' ) )\n\t);\n} else {\n\t$demo_url = add_query_arg(\n\t\t[\n\t\t\t'wp'            => 'beta',\n\t\t\t'url'           => rawurlencode( '/' ),\n\t\t\t'blueprint-url' => rawurlencode( 'https://wordpress.org/plugins/wp-json/plugins/v1/plugin/disable-random-content/blueprint.json' ),\n\t\t],\n\t\t'https://playground.wordpress.net/'\n\t);\n\t$content  = sprintf(\n\t\t'<p>This preview uses WordPress %s. WordPress introduced random redirects in 7.2.</p>\n\t\t<p><a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Open the WordPress 7.2 demo</a>.</p>',\n\t\tesc_html( get_bloginfo( 'version' ) ),\n\t\tesc_url( $demo_url )\n\t);\n}\n\n$page = get_page_by_path( 'try-disable-random-content' );\n$page_id = wp_insert_post(\n\t[\n\t\t'ID'           => $page ? $page->ID : 0,\n\t\t'post_type'    => 'page',\n\t\t'post_status'  => 'publish',\n\t\t'post_title'   => 'Try Disable Random Content',\n\t\t'post_name'    => 'try-disable-random-content',\n\t\t'post_content' => $content,\n\t],\n\ttrue\n);\nif ( is_wp_error( $page_id ) ) {\n\tthrow new RuntimeException( $page_id->get_error_message() );\n}\n\nupdate_option( 'page_on_front', $page_id );\nupdate_option( 'show_on_front', 'page' );\nflush_rewrite_rules( false );",
+      "code": "<?php\nrequire_once '/wordpress/wp-load.php';\n\nif ( method_exists( 'WP_Rewrite', 'get_random_base' ) ) {\n\t$content = sprintf(\n\t\t'<p>Disable Random Content is active. With the demo&rsquo;s initial settings, only the Blog category can redirect to a random post.</p>\n\t<ul>\n\t<li><a href=\"%s\">Try the site-wide /random/</a>. WordPress returns a 404.</li>\n\t<li><a href=\"%s\">Try a random Blog post</a>. Each visit picks from three published Blog posts.</li>\n\t<li><a href=\"%s\">Try Updates with ?random=1</a>. The regular Updates archive opens with both published posts.</li>\n\t</ul>\n\t<p><a href=\"%s\">Change the allowed archives in Settings</a>. Select Updates instead of Blog, save, and try the same links again. Use the site title to return here from any page.</p>\n\t<p><a href=\"https://wordpress.org/plugins/disable-random-content/\" target=\"_blank\" rel=\"noopener noreferrer\">Install Disable Random Content on your site</a>.</p>',\n\t\tesc_url( home_url( '/random/' ) ),\n\t\tesc_url( home_url( '/random/category/blog/' ) ),\n\t\tesc_url( add_query_arg( 'random', '1', get_category_link( get_term_by( 'slug', 'updates', 'category' ) ) ) ),\n\t\tesc_url( admin_url( 'admin.php?page=disable-random-content' ) )\n\t);\n} else {\n\t$demo_url = add_query_arg(\n\t\t[\n\t\t\t'wp'            => 'beta',\n\t\t\t'url'           => rawurlencode( '/' ),\n\t\t\t'blueprint-url' => rawurlencode( 'https://wordpress.org/plugins/wp-json/plugins/v1/plugin/disable-random-content/blueprint.json' ),\n\t\t],\n\t\t'https://playground.wordpress.net/'\n\t);\n\t$content  = sprintf(\n\t\t'<p>This preview uses WordPress %s. WordPress introduced random redirects in 7.2.</p>\n\t\t<p><a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">Open the WordPress 7.2 demo</a>.</p>',\n\t\tesc_html( get_bloginfo( 'version' ) ),\n\t\tesc_url( $demo_url )\n\t);\n}\n\n$page = get_page_by_path( 'try-disable-random-content' );\n$page_id = wp_insert_post(\n\t[\n\t\t'ID'           => $page ? $page->ID : 0,\n\t\t'post_type'    => 'page',\n\t\t'post_status'  => 'publish',\n\t\t'post_title'   => 'Try Disable Random Content',\n\t\t'post_name'    => 'try-disable-random-content',\n\t\t'post_content' => $content,\n\t],\n\ttrue\n);\nif ( is_wp_error( $page_id ) ) {\n\tthrow new RuntimeException( $page_id->get_error_message() );\n}\n\nupdate_option( 'page_on_front', $page_id );\nupdate_option( 'show_on_front', 'page' );\nflush_rewrite_rules( false );",
       "progress": {
         "caption": "Setting up the demo home page"
       }
