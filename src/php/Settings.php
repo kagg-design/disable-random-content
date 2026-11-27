@@ -112,14 +112,29 @@ final class Settings {
 	 * @return array<string, WP_Post_Type> Eligible post types.
 	 */
 	public static function post_types(): array {
-		$types = get_post_types(
-			[
-				'publicly_queryable' => true,
-				'randomable'         => true,
-			],
-			'objects'
+		return array_filter(
+			self::randomable_post_types(),
+			static fn( WP_Post_Type $type ): bool => $type->publicly_queryable && $type->has_archive
 		);
-		return array_filter( $types, static fn( WP_Post_Type $type ): bool => (bool) $type->has_archive );
+	}
+
+	/**
+	 * Get post types eligible for random content, including before a core upgrade.
+	 *
+	 * @return array<string, WP_Post_Type> Post types whose content can be selected.
+	 */
+	private static function randomable_post_types(): array {
+		if ( method_exists( WP_Rewrite::class, 'get_random_base' ) ) {
+			return get_post_types( [ 'randomable' => true ], 'objects' );
+		}
+
+		// On 7.1, use the same defaults that core applies when randomable is available.
+		return array_filter(
+			get_post_types( [], 'objects' ),
+			static fn( WP_Post_Type $type ): bool => (
+				$type->randomable ?? ( 'post' === $type->name || ( $type->publicly_queryable && $type->has_archive ) )
+			)
+		);
 	}
 
 	/**
@@ -130,7 +145,7 @@ final class Settings {
 	 * @return bool Whether its archives can be selected.
 	 */
 	public static function supports_taxonomy( WP_Taxonomy $taxonomy ): bool {
-		return $taxonomy->publicly_queryable && array_intersect( $taxonomy->object_type, get_post_types( [ 'randomable' => true ] ) );
+		return $taxonomy->publicly_queryable && array_intersect( $taxonomy->object_type, array_keys( self::randomable_post_types() ) );
 	}
 
 	/**
@@ -167,10 +182,6 @@ final class Settings {
 	 * Register the settings section and multiple-selection fields.
 	 */
 	public function register_fields(): void {
-		if ( ! method_exists( WP_Rewrite::class, 'get_random_base' ) ) {
-			return;
-		}
-
 		register_setting( self::PAGE, self::OPTION, [ 'sanitize_callback' => [ $this, 'sanitize' ] ] );
 		add_settings_section(
 			'archives',
@@ -251,17 +262,15 @@ final class Settings {
 						<strong><?php esc_html_e( 'All settings are optional.', 'disable-random-content' ); ?></strong>
 						<?php esc_html_e( 'On activation, this plugin disables all built-in WordPress random content redirects. Use the settings below to allow redirects for individual archives.', 'disable-random-content' ); ?>
 					<?php else : ?>
-						<?php esc_html_e( 'Archive settings become available in WordPress 7.2. You can keep this plugin active before upgrading.', 'disable-random-content' ); ?>
+						<?php esc_html_e( 'These archive settings take effect on WordPress 7.2 or later. You can save your selections before upgrading.', 'disable-random-content' ); ?>
 					<?php endif; ?>
 				</p>
 			</div>
-			<?php if ( $random_redirects_available ) : ?>
-				<form action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
-					<?php settings_fields( self::PAGE ); ?>
-					<?php do_settings_sections( self::PAGE ); ?>
-					<?php submit_button(); ?>
-				</form>
-			<?php endif; ?>
+			<form action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
+				<?php settings_fields( self::PAGE ); ?>
+				<?php do_settings_sections( self::PAGE ); ?>
+				<?php submit_button(); ?>
+			</form>
 		</div>
 		<?php
 	}
