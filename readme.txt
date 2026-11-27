@@ -8,13 +8,15 @@ Stable tag: 1.3.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Disable Random Content turns off WordPress 7.2 random content redirects, including /random/. Keep random links for selected archives.
+Disable Random Content turns off WordPress 7.2 random redirects. Keep random links for selected archives. Works with WPML and Polylang.
 
 == Description ==
 
-Activate Disable Random Content to disable WordPress 7.2's built-in random post redirects. The plugin stops those redirects from `/random/`, `/?random=1`, and random links on archives.
+Disable Random Content turns off WordPress 7.2's built-in random redirects as soon as you activate it. You can keep random links for selected categories, tags, and other archives, including on sites that use **WPML** or **Polylang**. For example, on a WPML site you can allow a random link for your English Blog category while keeping random redirects disabled on its translated archives and at the site-wide `/random/` URL.
 
-To keep random links for specific categories, tags, or other eligible archives, select them under Settings > Disable Random Content. For example, allow `/random/category/blog/` and keep the site-wide `/random/` disabled.
+**WooCommerce and Multisite.** Keep a random link for a selected WooCommerce product category. On Multisite, each site has its own archive selection.
+
+Choose the archives you want to allow under **Settings > Disable Random Content**. For example, selecting Blog enables its random URL, such as `/random/category/blog/`.
 
 You can activate the plugin on WordPress 7.1 ahead of the upgrade, either for one site or across a Multisite network. It starts controlling random redirects when the site runs WordPress 7.2 or later.
 
