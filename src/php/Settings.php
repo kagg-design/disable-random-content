@@ -214,8 +214,10 @@ final class Settings {
 				continue;
 			}
 
-			$term     = get_term( (int) $value );
+			// Validate the submitted ID itself, including when WPML translates get_term().
+			$term     = WP_Term::get_instance( (int) $value );
 			$taxonomy = $term instanceof WP_Term ? get_taxonomy( $term->taxonomy ) : false;
+
 			if ( $taxonomy && self::supports_taxonomy( $taxonomy ) ) {
 				$terms[ $term->term_id ] = $term->term_id;
 			}
@@ -272,7 +274,9 @@ final class Settings {
 	public function render_field( array $field ): void {
 		$key      = $field['key'];
 		$selected = self::get()[ $key ];
-		$groups   = 'terms' === $key ? $this->term_choices() : array_filter( [ '' => wp_list_pluck( self::post_types(), 'label' ) ] );
+		$groups   = 'terms' === $key
+			? WPML::with_original_terms( fn() => $this->term_choices() )
+			: array_filter( [ '' => wp_list_pluck( self::post_types(), 'label' ) ] );
 		$id       = $field['label_for'];
 
 		?>

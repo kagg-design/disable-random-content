@@ -113,8 +113,9 @@ The plugin makes no external requests and adds no tracking. Archive selections a
 == Changelog ==
 
 = 1.3.4 =
-* Added Polylang support.
-* Added support for global random redirect settings from other plugins, including Admin and Site Enhancements.
+* Added WPML compatibility.
+* Added Polylang compatibility.
+* Added compatibility for global random redirect settings from other plugins, including Admin and Site Enhancements.
 * Added a Live Preview walkthrough for testing the links before and after changing the allowed category.
 
 = 1.3.3 =

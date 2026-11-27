@@ -179,6 +179,142 @@ class AllowedArchivesIntegrationTest extends WP_UnitTestCase {
 		}
 	}
 
+	/** A WPML language can scope an allowed archive without changing the selection. */
+	public function test_wpml_language_preserves_only_selected_archive_redirects(): void {
+		$blog     = self::factory()->category->create( [ 'slug' => 'blog' ] );
+		$news     = self::factory()->category->create( [ 'slug' => 'news' ] );
+		$archives = new RandomArchives();
+		update_option( Settings::OPTION, [ 'terms' => [ $blog ] ] );
+
+		$active = static fn( $result, string $language ): bool => in_array( $language, [ 'en', 'fr' ], true );
+		add_filter( 'wpml_language_is_active', $active, 10, 2 );
+		try {
+			$selected = [
+				'cat'    => $blog,
+				'lang'   => 'fr',
+				'random' => '1',
+			];
+			self::assertSame( $selected, $archives->filter_request( $selected ) );
+
+			$unknown = array_replace( $selected, [ 'lang' => 'unknown' ] );
+			self::assertSame(
+				[
+					'cat'  => $blog,
+					'lang' => 'unknown',
+				],
+				$archives->filter_request( $unknown )
+			);
+
+			$unselected = array_replace( $selected, [ 'cat' => $news ] );
+			self::assertSame(
+				[
+					'cat'  => $news,
+					'lang' => 'fr',
+				],
+				$archives->filter_request( $unselected )
+			);
+			$homepage = [ 'lang' => 'fr' ];
+			self::assertSame( $homepage, $archives->filter_request( $homepage + [ 'random' => '1' ] ) );
+		} finally {
+			remove_filter( 'wpml_language_is_active', $active, 10 );
+		}
+	}
+
+	/** Cached rewrite rules and requests use the saved term ID even when WPML translates term lookups. */
+	public function test_wpml_translation_does_not_change_the_allowed_term(): void {
+		global $wp_rewrite;
+
+		$original    = self::factory()->category->create( [ 'slug' => 'blog' ] );
+		$translation = self::factory()->category->create_and_get( [ 'slug' => 'blog-fr' ] );
+		$archives    = new RandomArchives();
+		update_option( Settings::OPTION, [ 'terms' => [ $original ] ] );
+
+		$translate_query = static function ( array $args ): array {
+			if ( empty( $args['wpml_skip_filters'] ) && in_array( 'blog', (array) $args['slug'], true ) ) {
+				$args['slug'] = 'blog-fr';
+			}
+
+			return $args;
+		};
+		$translate_term  = static function ( $term ) use ( $original, $translation ) {
+			if ( $original === $term->term_id && ! apply_filters( 'wpml_disable_term_adjust_id', false, $term ) ) {
+				return $translation;
+			}
+
+			return $term;
+		};
+		add_filter( 'get_term', $translate_term );
+		add_filter( 'get_terms_args', $translate_query );
+		add_filter( 'wpml_language_is_active', '__return_true' );
+		try {
+			$base  = $wp_rewrite->get_random_base();
+			$rules = $wp_rewrite->wp_rewrite_rules();
+			self::assertArrayHasKey( "$base/category/blog/?$", $rules );
+			self::assertArrayNotHasKey( preg_quote( "$base/category/blog-fr", '#' ) . '/?$', $rules );
+
+			$allowed = [
+				'cat'    => $original,
+				'random' => '1',
+			];
+			self::assertSame( $allowed, $archives->filter_request( $allowed ) );
+			$unselected = [ 'cat' => $translation->term_id ];
+			self::assertSame( $unselected, $archives->filter_request( $unselected + [ 'random' => '1' ] ) );
+			self::assertSame( $translation->term_id, get_term( $original )->term_id );
+			self::assertSame( $translation->term_id, get_term_by( 'slug', 'blog', 'category' )->term_id );
+			self::assertSame( [ $original ], ( new Settings() )->sanitize( [ 'terms' => [ $original ] ] )['terms'] );
+		} finally {
+			remove_filter( 'wpml_language_is_active', '__return_true' );
+			remove_filter( 'get_terms_args', $translate_query );
+			remove_filter( 'get_term', $translate_term );
+		}
+	}
+
+	/** The site-wide selection includes terms hidden by the current WPML language. */
+	public function test_wpml_settings_list_all_languages_without_changing_other_term_queries(): void {
+		$english = self::factory()->category->create( [ 'name' => 'English archive' ] );
+		$french  = self::factory()->category->create( [ 'name' => 'French archive' ] );
+		update_option( Settings::OPTION, [ 'terms' => [ $french ] ] );
+
+		$filter = static function ( array $args, array $taxonomies ) use ( $english ): array {
+			if ( empty( $args['wpml_skip_filters'] ) && in_array( 'category', $taxonomies, true ) ) {
+				$args['include'] = [ $english ];
+			}
+
+			return $args;
+		};
+
+		add_filter( 'wpml_language_is_active', '__return_true' );
+		add_filter( 'get_terms_args', $filter, 10, 2 );
+		ob_start();
+		try {
+			( new Settings() )->render_field(
+				[
+					'key'         => 'terms',
+					'label_for'   => 'archives',
+					'description' => 'Archives',
+				]
+			);
+			$html = ob_get_contents();
+			self::assertSame(
+				[ $english ],
+				get_terms(
+					[
+						'taxonomy'   => 'category',
+						'fields'     => 'ids',
+						'hide_empty' => false,
+					]
+				)
+			);
+		} finally {
+			ob_end_clean();
+			remove_filter( 'get_terms_args', $filter, 10 );
+			remove_filter( 'wpml_language_is_active', '__return_true' );
+		}
+
+		self::assertStringContainsString( 'English archive', $html );
+		self::assertMatchesRegularExpression( '/value="' . $french . '"\s+selected=[^>]+>French archive<\/option>/', $html );
+	}
+
 	/** Term selection uses IDs and follows a parent slug change. */
 	public function test_selected_child_route_follows_renamed_parent(): void {
 		global $wp_rewrite;

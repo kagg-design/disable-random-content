@@ -85,10 +85,22 @@ final class RandomArchives {
 	public function filter_rewrite_rules( array $rules ): array {
 		// With empty settings, honor a site's explicit override of the core filter.
 		$settings = Settings::get();
+
 		if ( ! $rules || ( ! $settings['terms'] && ! $settings['post_types'] ) ) {
 			return $rules;
 		}
 
+		return WPML::with_original_terms( fn() => $this->allowed_rewrite_rules( $rules, $settings ) );
+	}
+
+	/**
+	 * Generate rules for the archives selected by their original IDs.
+	 *
+	 * @param array<string, string> $rules    Generated WordPress random rules.
+	 * @param array                 $settings Site settings.
+	 * @return array<string, string> Rules for the selected archives.
+	 */
+	private function allowed_rewrite_rules( array $rules, array $settings ): array {
 		global $wp_rewrite;
 
 		$allowed = [];
@@ -178,10 +190,18 @@ final class RandomArchives {
 	private function allows( array $query_vars, array $settings ): bool {
 		unset( $query_vars['random'], $query_vars['paged'] );
 
-		// Polylang's language scopes the selected archive without identifying it.
+		// A configured language scopes the selected archive without identifying it.
+		$language = $query_vars['lang'] ?? null;
+
 		if (
-			isset( $query_vars['lang'] ) && function_exists( 'pll_languages_list' )
-			&& in_array( $query_vars['lang'], pll_languages_list( [ 'fields' => 'slug' ] ), true )
+			is_string( $language ) &&
+			(
+				(
+					function_exists( 'pll_languages_list' ) &&
+					in_array( $language, pll_languages_list( [ 'fields' => 'slug' ] ), true )
+				) ||
+				true === apply_filters( 'wpml_language_is_active', null, $language )
+			)
 		) {
 			unset( $query_vars['lang'] );
 		}
@@ -241,7 +261,7 @@ final class RandomArchives {
 			$value = wp_basename( $value );
 		}
 
-		$term = get_term_by( $field, $value, $taxonomy );
+		$term = WPML::with_original_terms( static fn() => get_term_by( $field, $value, $taxonomy ) );
 		return $term->term_id ?? 0;
 	}
 }
